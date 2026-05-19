@@ -8,12 +8,12 @@ describe('StartGame component specs', () => {
     const getTopicsStub = jest
       .spyOn(api, 'getTopics')
       .mockResolvedValue(['topic A', 'topic B']);
-    
+
     render(<StartGameComponent />);
 
     const items = await screen.findAllByRole('listitem');
 
-    expect(items).toHaveLength(1);
+    expect(items).toHaveLength(2);
     expect(getTopicsStub).toHaveBeenCalled();
   });
 });
