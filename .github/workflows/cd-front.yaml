@@ -23,6 +23,6 @@ jobs:
         with:
           context: ./hangman-front
           push: true
-          tags: ghcr.io/maysql/hangman-front:latest
+          tags: ghcr.io/Maysql2004/hangman-front:latest
           file: ./hangman-front/Dockerfile
 
