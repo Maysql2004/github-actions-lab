@@ -78,4 +78,23 @@ Después de la modimficación en el archivo, de nuevo hago el push y esta vez el
 
 ## 2. Workflow CD para el proyecto de frontend
 
+```
+name: Despliegue continuo front
 
+on:
+  workflow_dispatch:
+
+jobs:
+  buildAndPushImage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Login to GitHub Container Register
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+```
