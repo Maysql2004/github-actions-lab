@@ -16,14 +16,3 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build and push Docker Image
-        uses: docker/build-push-action@v7
-        with:
-          context: ./hangman-api
-          push: true
-          tags: reyesgrinformatica/hangman-api:latest
-          file: ./hangman-api/Dockerfile
-# comentario
-# otro comentario
