@@ -78,6 +78,12 @@ Después de la modimficación en el archivo, de nuevo hago el push y esta vez el
 
 ## 2. Workflow CD para el proyecto de frontend
 
+El workflow de este apartado está en el fichero cd-front.yaml. Tal y como podemos ver definido en on, no hay ningún evento que dispare el workflow, sino que se dispara manualmente.
+
+Ahora toca realizar un workflow de Continuous delivery que va a crear una imagen de Docker a partir del Dockerfile de la carpeta ./hangman-front, y además la tendremos publicada en el Github Container Registry (ghcr.io).
+
+1º Parte, crear el archivo .github/workflows/cd-frontend.yaml, con el contenido:
+
 ```
 name: Despliegue continuo front
 
@@ -98,3 +104,60 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 ```
+Como resultado obtengo
+
+![cd-front1](./imagenes/cd-front1.png)
+
+![cd-front2](./imagenes/cd-front2.png)
+
+Con la palabra reservada workflow_dispatch es la que le dice al workflow que se ejecute de forma manual, es decir, en la pestaña de Actions del proyecto de Github debemos darle al botón para lanzar el workflow.
+
+
+Algunos de los pasos (steps) del job son iguales que en el workflow de CI, como el checkout para llevar el código de la aplicación a la máquina virtual de Github donde se ejecutarán las acciones del workflow. Usamos otra action de Github para autenticarnos a ghcr.io, y otra para crear la imagen de docker y subirla a ghcr.io.
+
+2ª Parte, añadimos al archivo .github/workflows/cd-frontend.yaml el siguiente contenido:
+
+```
+- name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build and push Docker Image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./hangman-front
+          push: true
+          tags: ghcr.io/maysql2004/hangman-front:latest
+          file: ./hangman-front/Dockerfile
+```
+Analizando el workflow, este job se ejecuta en Ubuntu para contruir una imagen Docker y subirla a GitHub Container Registry (GHCR).
+
+Pasos del proceso
+- Clonar: Descarga el código del repositorio.
+- Autenticar: Inicia sesión en ghcr.io con un token automático de GitHub.
+- Configurar: Activa Docker Buildx para optimizar la compilación y la caché.
+- Publicar: Construye la imagen Docker y la sube al registro.
+
+Acciones utilizadas
+- actions/checkout: Clona el repositorio.- docker/login-action: Gestiona el login en ghcr.
+- docker/setup-buildx-action: Configura las funciones avanzadas de Buildx.
+- docker/build-push-action: Compila y publica la imagen.
+
+**Problemas con los que me he encontrado**
+
+1º Intentaba utilizar las credenciales para el login del container registry de GitHub con tag Maysql2004/hangman-front:latest y resulta que no puedo usar la maúscula de mi nombre de usuario.
+
+ ![cd-front3-error](./imagenes/cd-front3-error.png)
+
+2º El siguiente error se produjo por una cuestión de permisos, la instalación no tiene permitida la creación de paquetes.
+
+![cd-front4-error](./imagenes/cd-front4-error.png)
+
+La solución está en ir a los Settings del repositorio de GitHub e indicándole que se le permite a los workflows su lectura y escritura:
+- Settings-->Actions-->General
+
+**Modificación de los Settings del repositorio**
+
+![cd-front4-sol](./imagenes/cd-front4-sol.png)
+
+Con ello, ya podremos ver la imagen publicada en los packages de mi repositorio
+
+![cd-front-final](./imagenes/cd-front-final.png)
